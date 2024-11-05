@@ -1,0 +1,28 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.6
+    container_name: keycloak
+    command: start-dev
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 9000:9000
+    environment:
+      KC_HOSTNAME_STRICT: false
+      KC_LOG_LEVEL: info,org.keycloak.authentication:trace
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTPS_PROTOCOLS: TLSv1.2,TLSv1.3
+      KC_HTTP_ENABLED: false
+      KC_HTTPS_CLIENT_AUTH: required
+        # KC_HTTPS_CLIENT_AUTH: request
+      KC_HTTPS_PORT: 8443
+      KC_HTTPS_KEY_STORE_FILE: /certs/keystore.jks
+      KC_HTTPS_KEY_STORE_PASSWORD: helloworld
+      KC_HTTPS_TRUST_STORE_FILE: /certs/truststore.jks
+      KC_HTTPS_TRUST_STORE_PASSWORD: helloworld
+      #      KC_SPI_TRUSTSTORE_FILE_FILE: /certs/truststore.jks
+      #      KC_SPI_TRUSTSTORE_FILE_PASSWORD: helloworld
+    volumes:
+      - ./tls:/certs/ # /keycloak/certs =>is the folder path where you stock all certificates generated in preview steps
+      - ./idam-plugin-userspi/target/idam-plugin-userspi-1.0-SNAPSHOT.jar:/opt/keycloak/providers/idam-plugin-userspi-1.0-SNAPSHOT.jar
