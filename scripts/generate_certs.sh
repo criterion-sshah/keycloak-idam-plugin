@@ -1,7 +1,8 @@
 #!/bin/bash
 
 
-export CERT_GEN_CMD="/home/sshah/bin/certstrap --depot-path tls"
+export SCRIPT_DIR=$(dirname ${0})
+export CERT_GEN_CMD="${SCRIPT_DIR}/../bin/certstrap --depot-path ${SCRIPT_DIR}/../tls"
 
 
 function generate_ca() {
