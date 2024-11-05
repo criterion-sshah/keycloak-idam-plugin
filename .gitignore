@@ -1,4 +1,4 @@
-bin/*
+bin/certstrap
 tls/*
 */target/*
 
