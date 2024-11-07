@@ -13,6 +13,10 @@ import org.keycloak.models.UserModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class IdamUserAdapter extends AbstractUserAdapterFederatedStorage {
     private IdamUser user;
     private String firstName;
@@ -60,5 +64,14 @@ public class IdamUserAdapter extends AbstractUserAdapterFederatedStorage {
     public void setUsername(String username) {
         throw new RuntimeException("This storage provider does not have the ability to set a username!");
     }
+
+    @Override
+	protected Set<RoleModel> getRoleMappingsInternal() {
+		if (this.user.getRoles() != null) {
+			return this.user.getRoles().stream()
+				.map(roleName -> new IdamUserRoleModel(roleName, this.realm)).collect(Collectors.toSet());
+		}
+		return Set.of();
+	}
 
 }
