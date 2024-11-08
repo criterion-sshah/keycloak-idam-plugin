@@ -14,6 +14,9 @@ import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.adapter.AbstractUserAdapter;
 import org.keycloak.storage.user.UserLookupProvider;
 
+import gov.keycloak.idam.repo.IdamRepo;
+import gov.keycloak.idam.repo.IdamUser;
+
 @Slf4j
 public class IdamUserStorageProvider implements UserStorageProvider, UserLookupProvider {
 
@@ -21,9 +24,13 @@ public class IdamUserStorageProvider implements UserStorageProvider, UserLookupP
   protected ComponentModel model;
   private Map<String, UserModel> users = new HashMap<>();
 
+  private IdamRepo repo;
+
+
   public IdamUserStorageProvider(KeycloakSession session, ComponentModel model) {
     this.model = model;
     this.session = session;
+    this.repo = new IdamRepo();
   }
 
   // User Storage Provider Methods
@@ -36,24 +43,12 @@ public class IdamUserStorageProvider implements UserStorageProvider, UserLookupP
   public UserModel getUserByUsername(RealmModel realm, String username) {
     UserModel adapter = users.get(username);
     if (adapter == null) {
-      adapter = createAdapter(realm, username);
-      users.put(username, adapter);
+      IdamUser user = this.repo.getUser(username);
+      if(user != null) {
+        adapter = new IdamUserAdapter(this.session, realm, this.model, user);
+      }
     }
     return adapter;
-  }
-
-  protected UserModel createAdapter(RealmModel realm, String username) {
-    return new AbstractUserAdapter(session, realm, model) {
-      @Override
-      public String getUsername() {
-        return username;
-      }
-
-      @Override
-      public SubjectCredentialManager credentialManager() {
-        return new UserCredentialManager(session, realm, this);
-      }
-    };
   }
 
   @Override
